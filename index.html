@@ -1,341 +1,55 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Blackjack - A Festa das Cartas!</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Using Roboto for a modern look -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    /* Global styles */
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #74ebd5, #acb6e5);
-      font-family: 'Roboto', sans-serif;
-      color: #333;
-    }
-    #container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-    /* Welcome and game screens */
-    #welcome-screen, #game-screen {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    p {
-      text-align: center;
-      font-size: 1.1em;
-    }
-    .button-group {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-    .button-group button,
-    #controls button {
-      background: #ff6f61;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      padding: 10px 20px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background 0.3s;
-    }
-    .button-group button:hover,
-    #controls button:hover {
-      background: #ff3b2e;
-    }
-    /* Output chat/message area */
-    #output {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-      padding: 10px;
-      background: #fefefe;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    .message {
-      animation: fadeIn 0.5s ease forwards;
-      margin: 5px 0;
-    }
-    /* Tutorial messages in italic */
-    .tutorial-msg {
-      font-style: italic;
-      color: #555;
-      font-size: 0.9em;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - A Festa das Cartas!</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="container">
-    <!-- Welcome Screen -->
-    <div id="welcome-screen">
-      <h1>Bem-vindo ao Jogo de Blackjack, parceiro!</h1>
-      <p>Quer aprender a jogar ou já quer sair apostando?</p>
-      <div class="button-group">
-        <button id="tutorial-btn">Aprender a jogar</button>
-        <button id="direct-btn">Jogar direto</button>
-      </div>
+    <div class="container">
+        <h1>Blackjack - A Festa das Cartas!</h1>
+        <div id="intro-screen">
+            <p>Bem-vindo ao Jogo de Blackjack, parceiro!</p>
+            <p>Quer aprender a jogar ou já quer sair apostando?</p>
+            <button id="tutorial-btn">Sim, quero aprender!</button>
+            <button id="play-btn">Não, vamos jogar direto!</button>
+        </div>
+
+        <div id="tutorial-screen" class="hidden">
+            <h2>Tutorial Rápido - A Festa das Cartas!</h2>
+            <ul>
+                <li>1. Chegue o mais perto de 21 pontos sem passar, ou "estoure" e já era!</li>
+                <li>2. Você começa com 2 cartas e pode pedir mais ou parar.</li>
+                <li>3. O Ás (11) vira 1 se passar de 21. Esperto, né?</li>
+                <li>4. 21 com as 2 primeiras cartas? BLACKJACK! Vitória na hora!</li>
+                <li>5. O computador joga depois e para em 17 ou mais.</li>
+                <li>6. Quem tiver mais pontos sem estourar ganha!</li>
+            </ul>
+            <button id="start-after-tutorial">Pronto pra arrasar? Vamos lá!</button>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <div id="player-hand">
+                <h2>Sua Mão</h2>
+                <div id="player-cards" class="card-container"></div>
+                <p>Pontos: <span id="player-score">0</span></p>
+            </div>
+            <div id="computer-hand">
+                <h2>Mão do Computador</h2>
+                <div id="computer-cards" class="card-container"></div>
+                <p>Pontos: <span id="computer-score">?</span></p>
+            </div>
+            <div id="message-box"></div>
+            <div id="tutorial-box" class="hidden"></div>
+            <div id="controls">
+                <button id="draw-card">Pegar Carta</button>
+                <button id="stand">Parar</button>
+            </div>
+            <button id="play-again" class="hidden">Jogar Novamente?</button>
+        </div>
     </div>
-    
-    <!-- Game Screen (hidden by default) -->
-    <div id="game-screen" style="display:none;">
-      <div id="output"></div>
-      <div id="controls"></div>
-    </div>
-  </div>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      // Global variables
-      let tutorial = false;
-      let playerCards = [];
-      let computerCards = [];
-      const cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
-
-      // Utility: Get a random card from the deck
-      function pegaCarta() {
-        return cards[Math.floor(Math.random() * cards.length)];
-      }
-
-      // Calculate points (Ace adjusts from 11 to 1 if needed).
-      function calculaPontos(hand) {
-        let total = hand.reduce((sum, card) => sum + card, 0);
-        if (total === 21 && hand.length === 2) return "Blackjack";
-        // Adjust any ace (11) if score is over 21.
-        let aceCount = hand.filter(card => card === 11).length;
-        while (total > 21 && aceCount > 0) {
-          total -= 10;
-          aceCount--;
-        }
-        return total;
-      }
-
-      // Utility: append a message to the output area.
-      function addMessage(msg, type) {
-        const outputDiv = document.getElementById("output");
-        const p = document.createElement("p");
-        p.innerText = msg;
-        p.className = "message";
-        if (type === "tutorial") {
-          p.classList.add("tutorial-msg");
-        }
-        outputDiv.appendChild(p);
-        // Auto scroll to the bottom.
-        outputDiv.scrollTop = outputDiv.scrollHeight;
-      }
-
-      function clearOutput() {
-        document.getElementById("output").innerHTML = "";
-      }
-
-      function clearControls() {
-        document.getElementById("controls").innerHTML = "";
-      }
-
-      // Start a new game
-      function comecaJogo() {
-        playerCards = [];
-        computerCards = [];
-        clearOutput();
-
-        // Deal two cards each.
-        for (let i = 0; i < 2; i++) {
-          playerCards.push(pegaCarta());
-          computerCards.push(pegaCarta());
-        }
-        
-        addMessage(`Sua mão: [${playerCards.join(', ')}], pontos atuais: ${calculaPontos(playerCards)}`);
-        addMessage(`Primeira carta do computador: ${computerCards[0]}`);
-        if (tutorial) {
-          addMessage("(Tutorial: Você ganhou 2 cartas pra começar! O objetivo é ficar perto de 21 sem passar.)", "tutorial");
-          addMessage("(Tutorial: O computador também pegou 2, mas só mostra uma por enquanto. Mistério!)", "tutorial");
-        }
-        showPlayerControls();
-      }
-
-      // Show controls for the player's turn: "Pedir carta" and "Parar"
-      function showPlayerControls() {
-        clearControls();
-        const controlsDiv = document.getElementById("controls");
-
-        const hitButton = document.createElement("button");
-        hitButton.innerText = "Pedir carta";
-        hitButton.addEventListener("click", playerHits);
-
-        const standButton = document.createElement("button");
-        standButton.innerText = "Parar";
-        standButton.addEventListener("click", playerStands);
-
-        controlsDiv.appendChild(hitButton);
-        controlsDiv.appendChild(standButton);
-      }
-
-      // Player takes another card
-      function playerHits() {
-        playerCards.push(pegaCarta());
-        const playerScore = calculaPontos(playerCards);
-        addMessage(`Sua mão: [${playerCards.join(', ')}], pontos atuais: ${playerScore}`);
-        if (tutorial) {
-          addMessage("(Tutorial: Nova carta na mão! Veja se ainda tá abaixo de 21 pra não estourar.)", "tutorial");
-        }
-        if (playerScore === "Blackjack") {
-          addMessage("Você ganhou com um BLACKJACK! Tá muito chique!");
-          if (tutorial) addMessage("(Tutorial: BLACKJACK! Suas 2 cartas somaram 21 direto. Vitória instantânea!)", "tutorial");
-          endGame();
-        } else if (playerScore > 21) {
-          addMessage("Oops, estourou! Perdeu, mas foi quase, hein!");
-          if (tutorial) addMessage("(Tutorial: Passou de 21? Isso é 'estourar'. Fim de jogo pra você dessa vez.)", "tutorial");
-          endGame();
-        } else if (playerScore === 21 && calculaPontos(computerCards) === 21) {
-          addMessage("Empate danado! Vocês dois chegaram a 21!");
-          if (tutorial) addMessage("(Tutorial: Os dois fizeram 21! Isso é raro, acabou em empate.)", "tutorial");
-          endGame();
-        }
-        // Senário normal: o jogador pode continuar pedindo cartas.
-      }
-
-      // When the player decides to stand.
-      function playerStands() {
-        clearControls();
-        if (tutorial) {
-          addMessage("(Tutorial: Você parou! Agora o computador joga até pelo menos 17 pontos.)", "tutorial");
-        }
-        // Let the computer play with a small delay for dramatic effect.
-        setTimeout(computerTurn, 500);
-      }
-
-      // Computer draws cards until its total is at least 17.
-      function computerTurn() {
-        let computerScore = calculaPontos(computerCards);
-        if (computerScore < 17) {
-          computerCards.push(pegaCarta());
-          computerScore = calculaPontos(computerCards);
-          if (tutorial) {
-            addMessage("(Tutorial: O computador pegou mais cartas pra chegar a 17 ou mais. Vamos ver no que dá!)", "tutorial");
-          }
-          setTimeout(computerTurn, 1000); // delay between draws
-        } else {
-          finishGame();
-        }
-      }
-
-      // Finalize the game by comparing scores and showing the result.
-      function finishGame() {
-        addMessage(`Sua mão final: [${playerCards.join(', ')}], pontos finais: ${calculaPontos(playerCards)}`);
-        addMessage(`Mão final do computador: [${computerCards.join(', ')}], pontos finais: ${calculaPontos(computerCards)}`);
-        if (tutorial) {
-          addMessage("(Tutorial: Hora da verdade! Vamos comparar os pontos pra ver quem ganha.)", "tutorial");
-        }
-        
-        const playerScore = calculaPontos(playerCards);
-        const computerScore = calculaPontos(computerCards);
-
-        if (playerScore > 21) {
-          addMessage("Você estourou, que pena! Perdeu dessa vez.");
-          if (tutorial) addMessage("(Tutorial: Mais de 21 = derrota. Cuidado na próxima!)", "tutorial");
-        } else if (computerScore > 21) {
-          addMessage("O computador estourou! Você ganhou, show de bola!");
-          if (tutorial) addMessage("(Tutorial: Computador passou de 21, então você leva essa!)", "tutorial");
-        } else if (playerScore > computerScore && playerScore <= 21) {
-          addMessage("Você venceu, mandou muito bem!");
-          if (tutorial) addMessage("(Tutorial: Seus pontos são maiores e não estourou. Vitória sua!)", "tutorial");
-        } else if (playerScore === computerScore) {
-          addMessage("Empate! Foi por pouco, hein!");
-          if (tutorial) addMessage("(Tutorial: Mesmos pontos? Empate! Ninguém ganha, ninguém perde.)", "tutorial");
-        } else {
-          addMessage("Que triste, você perdeu! O computador levou essa.");
-          if (tutorial) addMessage("(Tutorial: Computador teve mais pontos sem estourar. Ele venceu dessa vez.)", "tutorial");
-        }
-        
-        endGame();
-      }
-
-      // End-game: ask whether to play again or exit.
-      function endGame() {
-        clearControls();
-        const controlsDiv = document.getElementById("controls");
-        
-        const playAgainButton = document.createElement("button");
-        playAgainButton.innerText = "Jogar de novo";
-        playAgainButton.addEventListener("click", comecaJogo);
-        
-        const exitButton = document.createElement("button");
-        exitButton.innerText = "Sair";
-        exitButton.addEventListener("click", () => {
-          clearControls();
-          addMessage("Tchau, até a próxima aventura nas cartas!");
-        });
-        
-        controlsDiv.appendChild(playAgainButton);
-        controlsDiv.appendChild(exitButton);
-      }
-
-      // Start screen: attach event listeners for the initial choice.
-      document.getElementById("tutorial-btn").addEventListener("click", () => {
-        tutorial = true;
-        startGame();
-      });
-      document.getElementById("direct-btn").addEventListener("click", () => {
-        tutorial = false;
-        startGame();
-      });
-      
-      // On starting the game, hide welcome screen and show the game area.
-      function startGame() {
-        document.getElementById("welcome-screen").style.display = "none";
-        document.getElementById("game-screen").style.display = "block";
-        clearOutput();
-        clearControls();
-        if (tutorial) {
-          addMessage("=== Tutorial Rápido de Blackjack - A Festa das Cartas! ===");
-          addMessage("1. O objetivo é chegar o mais perto de 21 pontos sem passar, ou 'estourar'. Se estourar, já era!");
-          addMessage("2. Você começa com 2 cartas e pode pedir mais ('s') ou parar ('n').");
-          addMessage("3. O Ás (11) é um coringa: vira 1 se você passar de 21. Esperto, né?");
-          addMessage("4. Se suas 2 primeiras cartas somarem 21, é BLACKJACK! Vitória na hora!");
-          addMessage("5. O computador (seu rival) joga depois e precisa chegar a pelo menos 17.");
-          addMessage("6. Quem tiver mais pontos sem estourar ganha. Simples e emocionante!");
-          addMessage("Pronto pra arrasar? Vamos lá!");
-          // Button to begin the game after the tutorial info.
-          const controlsDiv = document.getElementById("controls");
-          const startButton = document.createElement("button");
-          startButton.innerText = "Pressione para começar a bagunça!";
-          startButton.addEventListener("click", () => {
-            clearControls();
-            comecaJogo();
-          });
-          controlsDiv.appendChild(startButton);
-        } else {
-          addMessage("Beleza, você já é craque! Vamos direto pro jogo!");
-          const controlsDiv = document.getElementById("controls");
-          const startButton = document.createElement("button");
-          startButton.innerText = "Pressione para começar a farra!";
-          startButton.addEventListener("click", () => {
-            clearControls();
-            comecaJogo();
-          });
-          controlsDiv.appendChild(startButton);
-        }
-      }
-    });
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
