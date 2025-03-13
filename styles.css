@@ -1,0 +1,109 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    max-width: 800px;
+    text-align: center;
+}
+
+h1 {
+    font-family: 'Lobster', cursive;
+    font-size: 3rem;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+button {
+    background: #ffd700;
+    color: #1a2a6c;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s, background 0.3s;
+}
+
+button:hover {
+    transform: scale(1.1);
+    background: #ffeb3b;
+}
+
+.hidden {
+    display: none;
+}
+
+#tutorial-screen ul {
+    text-align: left;
+    max-width: 600px;
+    margin: 20px auto;
+    list-style: decimal;
+    padding-left: 20px;
+}
+
+#tutorial-screen li {
+    margin: 10px 0;
+}
+
+.card-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.card {
+    background: #fff;
+    color: #1a2a6c;
+    width: 60px;
+    height: 90px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: deal 0.5s ease-out;
+}
+
+@keyframes deal {
+    0% { transform: translateY(-100vh) rotate(20deg); }
+    100% { transform: translateY(0) rotate(0); }
+}
+
+#message-box, #tutorial-box {
+    margin: 20px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+#tutorial-box {
+    color: #ffd700;
+    font-style: italic;
+}
